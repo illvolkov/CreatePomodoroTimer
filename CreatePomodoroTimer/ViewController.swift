@@ -43,7 +43,11 @@ class ViewController: UIViewController {
     }
     
     private func setupLayout() {
-        
+        startPauseButton.translatesAutoresizingMaskIntoConstraints = false
+        startPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        startPauseButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20).isActive = true
+        startPauseButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        startPauseButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     //MARK: - Create functions
