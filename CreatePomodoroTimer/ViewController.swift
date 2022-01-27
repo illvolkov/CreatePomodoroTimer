@@ -8,6 +8,9 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    //Флаг для конфигурации режима работы
+    var isWorkTime = true
 
     //MARK: - Lifecycle
 
