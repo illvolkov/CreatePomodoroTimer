@@ -11,6 +11,8 @@ class ViewController: UIViewController {
     
     //Флаг для конфигурации режима работы
     var isWorkTime = true
+    //Флаг для конфигурации кнопки
+    var isStarted = false
 
     //MARK: - Lifecycle
 
