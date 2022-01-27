@@ -39,7 +39,7 @@ class ViewController: UIViewController {
     //MARK: - Settings
     
     private func setupHierarchy() {
-        
+        view.addSubview(startPauseButton)
     }
     
     private func setupLayout() {
