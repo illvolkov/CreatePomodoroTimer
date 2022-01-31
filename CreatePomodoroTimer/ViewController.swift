@@ -26,6 +26,15 @@ class ViewController: UIViewController {
 
         return button
     }()
+    
+    private lazy var timerLabel: UILabel = {
+        let timerLabel = UILabel()
+        
+        timerLabel.font = .systemFont(ofSize: 100, weight: .light)
+        timerLabel.text = "25:00"
+        timerLabel.textColor = UIColor(red: 241/255.0, green: 137/255.0, blue: 126/255.0, alpha: 1)
+        return timerLabel
+    }()
 
     //MARK: - Lifecycle
 
@@ -40,6 +49,7 @@ class ViewController: UIViewController {
     
     private func setupHierarchy() {
         view.addSubview(startPauseButton)
+        view.addSubview(timerLabel)
     }
     
     private func setupLayout() {
