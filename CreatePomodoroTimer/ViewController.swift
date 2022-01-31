@@ -65,17 +65,38 @@ class ViewController: UIViewController {
     }
 
     //MARK: - Create functions
+    
+    var timer = Timer()
+    var totalSecond = 1500
 
     @objc func statesButton() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
-
+        
         if isStarted == false {
             startPauseButton.setImage(UIImage(systemName: "pause", withConfiguration: buttonConfig), for: .normal)
+            timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
             isStarted = true
         } else {
             startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
+            timer.invalidate()
             isStarted = false
         }
+    }
+    
+    @objc func timerAction() {
+        totalSecond = totalSecond - 1
+        convertingTime()
+        if totalSecond == 0 {
+            timer.invalidate()
+        }
+    }
+    
+    private func convertingTime() {
+        var minutes: Int
+        var seconds: Int
+        minutes = (totalSecond % 3600) / 60
+        seconds = (totalSecond % 3600) % 60
+        timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
     }
 }
 
