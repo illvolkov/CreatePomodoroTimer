@@ -21,7 +21,7 @@ class ViewController: UIViewController {
         
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
         button.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
-        button.tintColor = UIColor(red: 241/255.0, green: 137/255.0, blue: 126/255.0, alpha: 1)
+        button.tintColor = UIColor(rgb: 0xF18B7F)
         button.addTarget(self, action: #selector(statesButton), for: .touchUpInside)
 
         return button
@@ -32,7 +32,7 @@ class ViewController: UIViewController {
         
         timerLabel.font = .systemFont(ofSize: 100, weight: .light)
         timerLabel.text = "25:00"
-        timerLabel.textColor = UIColor(red: 241/255.0, green: 137/255.0, blue: 126/255.0, alpha: 1)
+        timerLabel.textColor = UIColor(rgb: 0xF18B7F)
         return timerLabel
     }()
 
@@ -100,3 +100,17 @@ class ViewController: UIViewController {
     }
 }
 
+extension UIColor {
+    convenience init(red: Int, green: Int, blue: Int) {
+        assert(red >= 0 && red <= 255, "Invalid red component")
+        assert(green >= 0 && red <= 255, "Invalid green component")
+        assert(blue >= 0 && red <= 255, "Invalid blue component")
+        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+    }
+    
+    convenience init(rgb: Int) {
+        self.init(red: (rgb >> 16) & 0xFF,
+                  green: (rgb >> 8) & 0xFF,
+                  blue: rgb & 0xFF)
+    }
+}
