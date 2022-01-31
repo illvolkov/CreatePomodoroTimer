@@ -84,9 +84,26 @@ class ViewController: UIViewController {
     }
     
     @objc func timerAction() {
+        let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
         totalSecond = totalSecond - 1
         convertingTime()
-        if totalSecond == 0 {
+        if totalSecond == 0 && isWorkTime == true {
+            totalSecond = 300
+            timerLabel.textColor = UIColor(rgb: 0x66C2A3)
+            startPauseButton.tintColor = UIColor(rgb: 0x66C2A3)
+            timerLabel.text = "05:00"
+            startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
+            isStarted = false
+            isWorkTime = false
+            timer.invalidate()
+        } else if totalSecond == 0 && isWorkTime == false{
+            totalSecond = 1500
+            timerLabel.text = "25:00"
+            startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
+            timerLabel.textColor = UIColor(rgb: 0xF18B7F)
+            startPauseButton.tintColor = UIColor(rgb: 0xF18B7F)
+            isWorkTime = true
+            isStarted = false
             timer.invalidate()
         }
     }
