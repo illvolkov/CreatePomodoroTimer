@@ -58,6 +58,10 @@ class ViewController: UIViewController {
         startPauseButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20).isActive = true
         startPauseButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         startPauseButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        timerLabel.translatesAutoresizingMaskIntoConstraints = false
+        timerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 245).isActive = true
+        timerLabel.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 90).isActive = true
     }
 
     //MARK: - Create functions
