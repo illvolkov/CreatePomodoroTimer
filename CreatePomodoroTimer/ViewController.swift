@@ -9,15 +9,17 @@ import UIKit
 
 class ViewController: UIViewController, CAAnimationDelegate {
     
+    //MARK: - Flags
     //Флаг для конфигурации режима работы
     private var isWorkTime = true
     //Флаг для конфигурации кнопки
     private var isStarted = false
-    
+    //Флаг для конфигурации анимации
     private var isAnimationStarted = false
     
     //MARK: - Elements
 
+    //Создание кнопки Старт/Пауза
     private lazy var startPauseButton: UIButton = {
         let button = UIButton(type: .system)
         
@@ -29,6 +31,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         return button
     }()
     
+    //Создание лейбла с таймером
     private lazy var timerLabel: UILabel = {
         let timerLabel = UILabel()
         
@@ -38,14 +41,18 @@ class ViewController: UIViewController, CAAnimationDelegate {
         return timerLabel
     }()
     
+    //Создание главного прогресс бара на переднем плане
     private lazy var foreProgressLayer = circleProgressLayer()
     
+    //Создание прогресс бара на фоне
     private lazy var backProgressLayer = circleProgressLayer()
     
+    //Создание круглого индикатора прогресса
     private lazy var circleIndicator: CAShapeLayer = {
         var circleIndicator = CAShapeLayer()
-
+        //Расположение индикатора
         let circleCenter = CGPoint(x: view.bounds.midX, y: view.bounds.midY - 78)
+        //Установка точки вокруг которой будет вращаться индикатор
         circleIndicator.path = CGPath(ellipseIn: CGRect(x: -18, y: -185, width: 30, height: 30), transform: nil)
         circleIndicator.position = circleCenter
         circleIndicator.fillColor = UIColor.white.cgColor
@@ -56,8 +63,10 @@ class ViewController: UIViewController, CAAnimationDelegate {
         return circleIndicator
     }()
     
+    //Создание анимации для прогресс бара
     let animationProgressBar = CABasicAnimation(keyPath: "strokeEnd")
     
+    //Создание анимации для круглого индикатора прогресса
     let animationCircle = CABasicAnimation(keyPath: "transform.rotation")
 
     //MARK: - Lifecycle
@@ -94,13 +103,15 @@ class ViewController: UIViewController, CAAnimationDelegate {
 
     //MARK: - Create functions
     
+    //Создание таймера
     private var timer = Timer()
     private var totalSecond = 1500 {
         didSet {
             print(totalSecond)
         }
     }
-
+    
+    //Установка режимов кнопки Старт/Пауза
     @objc private func statesButton() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
         
@@ -118,10 +129,12 @@ class ViewController: UIViewController, CAAnimationDelegate {
         }
     }
     
+    //Установка режимов работы приложения исходя из таймера
     @objc private func timerAction() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
         totalSecond = totalSecond - 1
         convertingTime()
+        
         if totalSecond == 0 && isWorkTime == true {
             totalSecond = 300
             animationProgressBar.duration = CFTimeInterval(totalSecond)
@@ -149,6 +162,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         }
     }
     
+    //Перевод секунд в минуты и остаток секунд
     private func convertingTime() {
         var minutes: Int
         var seconds: Int
@@ -157,6 +171,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
     }
     
+    //Метод для создания прогресс бара
     private func circleProgressLayer() -> CAShapeLayer {
         let circleProgressLayer = CAShapeLayer()
         
@@ -171,6 +186,9 @@ class ViewController: UIViewController, CAAnimationDelegate {
         return circleProgressLayer
     }
     
+    //MARK: - Animation
+    
+    //Настройки для старта анимации
     private func startAnimation() {
         resetAnimation()
         foreProgressLayer.strokeEnd = 0.0
@@ -184,26 +202,29 @@ class ViewController: UIViewController, CAAnimationDelegate {
         animationProgressBar.fillMode = CAMediaTimingFillMode.forwards
         foreProgressLayer.strokeColor = UIColor.lightGray.cgColor
         foreProgressLayer.add(animationProgressBar, forKey: "strokeEnd")
-        animateCircle()
+        animateCircleIndicator()
         isAnimationStarted = true
     }
     
+    //Конфигурация режимов работы анимации
     private func startResumeAnimation() {
         if isAnimationStarted == false {
             startAnimation()
-            animateCircle()
+            animateCircleIndicator()
         } else {
             resumeAnimation(for: circleIndicator)
             resumeAnimation(for: foreProgressLayer)
         }
     }
     
+    //Настройки для паузы анимации
     private func pauseAnimation(for circle: CAShapeLayer) {
         let pauseTime = circle.convertTime(CACurrentMediaTime(), from: nil)
         circle.speed = 0
         circle.timeOffset = pauseTime
     }
     
+    //Настройки для продолжения анимации
     private func resumeAnimation(for circle: CAShapeLayer) {
         let pauseTime = circle.timeOffset
         circle.speed = 1
@@ -213,6 +234,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         circle.beginTime = timeSincePaused
     }
     
+    //Настройки для перезагрузки анимации
     private func resetAnimation() {
         foreProgressLayer.speed = 1.0
         foreProgressLayer.timeOffset = 0.0
@@ -221,6 +243,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         isAnimationStarted = false
     }
     
+    //Настройки для остановки анимации
     private func stopAnimation() {
         foreProgressLayer.speed = 1
         foreProgressLayer.timeOffset = 0
@@ -230,11 +253,13 @@ class ViewController: UIViewController, CAAnimationDelegate {
         isAnimationStarted = false
     }
     
+    //Передача настроек для остановки делегату
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         stopAnimation()
     }
     
-    private func animateCircle() {
+    //Настройки для анимации индикатора
+    private func animateCircleIndicator() {
         animationCircle.fromValue = 0
         animationCircle.toValue = -CGFloat.pi * 2
         animationCircle.duration = CFTimeInterval(totalSecond)
