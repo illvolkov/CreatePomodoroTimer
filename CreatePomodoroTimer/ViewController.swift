@@ -35,6 +35,25 @@ class ViewController: UIViewController {
         timerLabel.textColor = UIColor(rgb: 0xF18B7F)
         return timerLabel
     }()
+    
+    private lazy var foreProgressLayer = circleProgressLayer()
+    
+    private lazy var backProgressLayer = circleProgressLayer()
+    
+    private lazy var circleIndicator: CAShapeLayer = {
+        var circleIndicator = CAShapeLayer()
+
+        let circleCenter = CGPoint(x: view.bounds.midX, y: view.bounds.midY - 78)
+        circleIndicator.path = CGPath(ellipseIn: CGRect(x: -18, y: -185, width: 30, height: 30), transform: nil)
+        circleIndicator.position = circleCenter
+        circleIndicator.fillColor = UIColor.white.cgColor
+        circleIndicator.strokeColor = UIColor(rgb: 0xF18B7F).cgColor
+        circleIndicator.lineWidth = 2.3
+        
+        
+        return circleIndicator
+    }()
+    
 
     //MARK: - Lifecycle
 
@@ -50,6 +69,10 @@ class ViewController: UIViewController {
     private func setupHierarchy() {
         view.addSubview(startPauseButton)
         view.addSubview(timerLabel)
+        
+        view.layer.addSublayer(backProgressLayer)
+        view.layer.addSublayer(foreProgressLayer)
+        view.layer.addSublayer(circleIndicator)
     }
     
     private func setupLayout() {
@@ -89,8 +112,10 @@ class ViewController: UIViewController {
         convertingTime()
         if totalSecond == 0 && isWorkTime == true {
             totalSecond = 300
+            backProgressLayer.strokeColor = UIColor(rgb: 0x66C2A3).cgColor
             timerLabel.textColor = UIColor(rgb: 0x66C2A3)
             startPauseButton.tintColor = UIColor(rgb: 0x66C2A3)
+            circleIndicator.strokeColor = UIColor(rgb: 0x66C2A3).cgColor
             timerLabel.text = "05:00"
             startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
             isStarted = false
@@ -98,10 +123,12 @@ class ViewController: UIViewController {
             timer.invalidate()
         } else if totalSecond == 0 && isWorkTime == false{
             totalSecond = 1500
+            backProgressLayer.strokeColor = UIColor(rgb: 0xF18B7F).cgColor
             timerLabel.text = "25:00"
             startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
             timerLabel.textColor = UIColor(rgb: 0xF18B7F)
             startPauseButton.tintColor = UIColor(rgb: 0xF18B7F)
+            circleIndicator.strokeColor = UIColor(rgb: 0xF18B7F).cgColor
             isWorkTime = true
             isStarted = false
             timer.invalidate()
@@ -115,6 +142,21 @@ class ViewController: UIViewController {
         seconds = (totalSecond % 3600) % 60
         timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
     }
+    
+    private func circleProgressLayer() -> CAShapeLayer {
+        let circleProgressLayer = CAShapeLayer()
+        
+        let endAngle = (-CGFloat.pi / 2)
+        let startAngle = 2 * CGFloat.pi + endAngle
+        
+        circleProgressLayer.path = UIBezierPath(arcCenter: CGPoint(x: 213, y: 385), radius: 170, startAngle: startAngle, endAngle: endAngle, clockwise: false).cgPath
+        circleProgressLayer.strokeColor = UIColor(rgb: 0xF18B7F).cgColor
+        circleProgressLayer.fillColor = UIColor.clear.cgColor
+        circleProgressLayer.lineWidth = 6
+        
+        return circleProgressLayer
+    }
+    
 }
 
 extension UIColor {
