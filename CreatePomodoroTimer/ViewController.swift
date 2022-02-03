@@ -7,12 +7,14 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CAAnimationDelegate {
     
     //Флаг для конфигурации режима работы
     var isWorkTime = true
     //Флаг для конфигурации кнопки
     var isStarted = false
+    
+    private var isAnimationStarted = false
     
     //MARK: - Elements
 
@@ -54,6 +56,9 @@ class ViewController: UIViewController {
         return circleIndicator
     }()
     
+    let animationProgressBar = CABasicAnimation(keyPath: "strokeEnd")
+    
+    let animationCircle = CABasicAnimation(keyPath: "transform.rotation")
 
     //MARK: - Lifecycle
 
@@ -98,10 +103,13 @@ class ViewController: UIViewController {
         if isStarted == false {
             startPauseButton.setImage(UIImage(systemName: "pause", withConfiguration: buttonConfig), for: .normal)
             timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
+            startResumeAnimation()
             isStarted = true
         } else {
             startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
             timer.invalidate()
+            pauseAnimation(for: foreProgressLayer)
+            pauseAnimation(for: circleIndicator)
             isStarted = false
         }
     }
@@ -112,6 +120,7 @@ class ViewController: UIViewController {
         convertingTime()
         if totalSecond == 0 && isWorkTime == true {
             totalSecond = 300
+            animationProgressBar.duration = CFTimeInterval(totalSecond)
             backProgressLayer.strokeColor = UIColor(rgb: 0x66C2A3).cgColor
             timerLabel.textColor = UIColor(rgb: 0x66C2A3)
             startPauseButton.tintColor = UIColor(rgb: 0x66C2A3)
@@ -123,6 +132,7 @@ class ViewController: UIViewController {
             timer.invalidate()
         } else if totalSecond == 0 && isWorkTime == false{
             totalSecond = 1500
+            animationProgressBar.duration = CFTimeInterval(totalSecond)
             backProgressLayer.strokeColor = UIColor(rgb: 0xF18B7F).cgColor
             timerLabel.text = "25:00"
             startPauseButton.setImage(UIImage(systemName: "play", withConfiguration: buttonConfig), for: .normal)
@@ -157,6 +167,76 @@ class ViewController: UIViewController {
         return circleProgressLayer
     }
     
+    private func startAnimation() {
+        resetAnimation()
+        foreProgressLayer.strokeEnd = 0.0
+        animationProgressBar.keyPath = "strokeEnd"
+        animationProgressBar.fromValue = 0
+        animationProgressBar.toValue = 1
+        animationProgressBar.duration = CFTimeInterval(totalSecond)
+        animationProgressBar.delegate = self
+        animationProgressBar.isRemovedOnCompletion = false
+        animationProgressBar.isAdditive = true
+        animationProgressBar.fillMode = CAMediaTimingFillMode.forwards
+        foreProgressLayer.strokeColor = UIColor.lightGray.cgColor
+        foreProgressLayer.add(animationProgressBar, forKey: "strokeEnd")
+        animateCircle()
+        isAnimationStarted = true
+    }
+    
+    private func startResumeAnimation() {
+        if isAnimationStarted == false {
+            startAnimation()
+            animateCircle()
+        } else {
+            resumeAnimation(for: circleIndicator)
+            resumeAnimation(for: foreProgressLayer)
+        }
+    }
+    
+    private func pauseAnimation(for circle: CAShapeLayer) {
+        let pauseTime = circle.convertTime(CACurrentMediaTime(), from: nil)
+        circle.speed = 0
+        circle.timeOffset = pauseTime
+    }
+    
+    private func resumeAnimation(for circle: CAShapeLayer) {
+        let pauseTime = circle.timeOffset
+        circle.speed = 1
+        circle.timeOffset = 0.0
+        circle.beginTime = 0.0
+        let timeSincePaused = circle.convertTime(CACurrentMediaTime(), from: nil) - pauseTime
+        circle.beginTime = timeSincePaused
+    }
+    
+    private func resetAnimation() {
+        foreProgressLayer.speed = 1.0
+        foreProgressLayer.timeOffset = 0.0
+        foreProgressLayer.beginTime = 0.0
+        foreProgressLayer.strokeEnd = 0.0
+        isAnimationStarted = false
+    }
+    
+    private func stopAnimation() {
+        foreProgressLayer.speed = 1
+        foreProgressLayer.timeOffset = 0
+        foreProgressLayer.beginTime = 0
+        foreProgressLayer.strokeEnd = 0
+        foreProgressLayer.removeAllAnimations()
+        isAnimationStarted = false
+    }
+    
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        stopAnimation()
+    }
+    
+    private func animateCircle() {
+        animationCircle.fromValue = 0
+        animationCircle.toValue = -CGFloat.pi * 2
+        animationCircle.duration = CFTimeInterval(totalSecond)
+        animationCircle.isCumulative = true
+        circleIndicator.add(animationCircle, forKey: nil)
+    }
 }
 
 extension UIColor {
