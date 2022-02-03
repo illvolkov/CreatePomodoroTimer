@@ -10,9 +10,9 @@ import UIKit
 class ViewController: UIViewController, CAAnimationDelegate {
     
     //Флаг для конфигурации режима работы
-    var isWorkTime = true
+    private var isWorkTime = true
     //Флаг для конфигурации кнопки
-    var isStarted = false
+    private var isStarted = false
     
     private var isAnimationStarted = false
     
@@ -32,7 +32,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
     private lazy var timerLabel: UILabel = {
         let timerLabel = UILabel()
         
-        timerLabel.font = .systemFont(ofSize: 100, weight: .light)
+        timerLabel.font = .systemFont(ofSize: 80, weight: .light)
         timerLabel.text = "25:00"
         timerLabel.textColor = UIColor(rgb: 0xF18B7F)
         return timerLabel
@@ -82,22 +82,26 @@ class ViewController: UIViewController, CAAnimationDelegate {
     
     private func setupLayout() {
         startPauseButton.translatesAutoresizingMaskIntoConstraints = false
-        startPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        startPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -5).isActive = true
         startPauseButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20).isActive = true
         startPauseButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         startPauseButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         timerLabel.translatesAutoresizingMaskIntoConstraints = false
         timerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 245).isActive = true
-        timerLabel.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 90).isActive = true
+        timerLabel.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 110).isActive = true
     }
 
     //MARK: - Create functions
     
-    var timer = Timer()
-    var totalSecond = 1500
+    private var timer = Timer()
+    private var totalSecond = 1500 {
+        didSet {
+            print(totalSecond)
+        }
+    }
 
-    @objc func statesButton() {
+    @objc private func statesButton() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
         
         if isStarted == false {
@@ -114,7 +118,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         }
     }
     
-    @objc func timerAction() {
+    @objc private func timerAction() {
         let buttonConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .thin)
         totalSecond = totalSecond - 1
         convertingTime()
