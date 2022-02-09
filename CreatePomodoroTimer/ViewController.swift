@@ -35,9 +35,10 @@ class ViewController: UIViewController, CAAnimationDelegate {
     private lazy var timerLabel: UILabel = {
         let timerLabel = UILabel()
         
-        timerLabel.font = .systemFont(ofSize: Sizes.labelSize, weight: .light)
+        timerLabel.font = UIFont.monospacedDigitSystemFont(ofSize: Sizes.labelSize, weight: .light)
         timerLabel.text = Strings.workTime25
         timerLabel.textColor = Colors.workRedColor
+        timerLabel.adjustsFontSizeToFitWidth = true
         return timerLabel
     }()
     
@@ -59,10 +60,10 @@ class ViewController: UIViewController, CAAnimationDelegate {
     private lazy var circleIndicator: CAShapeLayer = {
         var circleIndicator = CAShapeLayer()
         //Расположение индикатора
-        let circleCenter = CGPoint(x: view.bounds.midX, y: view.bounds.midY - Offsets.centerIndicatorY)
+        let circleCenter = CGPoint(x: view.frame.width / 2, y: view.frame.height / 2 - Offsets.pointRotationY85)
         //Установка точки вокруг которой будет вращаться индикатор
         circleIndicator.path = CGPath(ellipseIn: CGRect(x: Offsets.indicatorPathX,
-                                                        y: Offsets.indicatorPathY,
+                                                        y: -(view.frame.width / 2.29),
                                                         width: Sizes.indicatorSize30,
                                                         height: Sizes.indicatorSize30),
                                                         transform: nil)
@@ -102,19 +103,24 @@ class ViewController: UIViewController, CAAnimationDelegate {
     }
     
     private func setupLayout() {
+        timerLabel.translatesAutoresizingMaskIntoConstraints = false
+        timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor,
+                                            constant: Offsets.timerLabelCenterX).isActive = true
+        timerLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor,
+                                            constant: Offsets.timerLabelCenterY).isActive = true
+        timerLabel.widthAnchor.constraint(equalTo: view.widthAnchor,
+                                          multiplier: Offsets.timerLabelMultiplierWidth).isActive = true
+        timerLabel.heightAnchor.constraint(equalTo: view.widthAnchor,
+                                           multiplier: Offsets.timerLabelMultiplierHeight).isActive = true
+        
         startPauseButton.translatesAutoresizingMaskIntoConstraints = false
         startPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor,
-                                                  constant: Offsets.buttonCenterX).isActive = true
-        startPauseButton.centerYAnchor.constraint(equalTo: view.centerYAnchor,
-                                                  constant: Offsets.buttonCenterY).isActive = true
-        startPauseButton.widthAnchor.constraint(equalToConstant: Sizes.buttonSize50).isActive = true
-        startPauseButton.heightAnchor.constraint(equalToConstant: Sizes.buttonSize50).isActive = true
-        
-        timerLabel.translatesAutoresizingMaskIntoConstraints = false
-        timerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,
-                                        constant: Offsets.timerLabelTop).isActive = true
-        timerLabel.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor,
-                                         constant: Offsets.timerLabelLeft).isActive = true
+                                                  constant: Offsets.startPauseButtonCenterX).isActive = true
+        startPauseButton.topAnchor.constraint(equalTo: timerLabel.bottomAnchor,
+                                              constant: Offsets.startPauseButtonTop).isActive = true
+        startPauseButton.widthAnchor.constraint(equalTo: view.widthAnchor,
+                                                multiplier: Offsets.startPauseButtonMultiplierWidth).isActive = true
+        startPauseButton.heightAnchor.constraint(equalTo: startPauseButton.widthAnchor).isActive = true
     }
 
     //MARK: - Create functions
@@ -150,10 +156,7 @@ class ViewController: UIViewController, CAAnimationDelegate {
         if totalSecond == 0 && isWorkTime == true {  //Режим отдыха
             totalSecond = Time.breakTime
             animationProgressBar.duration = CFTimeInterval(totalSecond)
-            backProgressLayer.strokeColor = Colors.breakGreenColor.cgColor
-            timerLabel.textColor = Colors.breakGreenColor
-            startPauseButton.tintColor = Colors.breakGreenColor
-            circleIndicator.strokeColor = Colors.breakGreenColor.cgColor
+            changeColor(Colors.breakGreenColor)
             timerLabel.text = Strings.breakTime5
             startPauseButton.setImage(UIImage(systemName: Icon.start, withConfiguration: buttonConfig), for: .normal)
             isStarted = false
@@ -162,12 +165,9 @@ class ViewController: UIViewController, CAAnimationDelegate {
         } else if totalSecond == 0 && isWorkTime == false{  //Режим работы
             totalSecond = Time.workTime
             animationProgressBar.duration = CFTimeInterval(totalSecond)
-            backProgressLayer.strokeColor = Colors.workRedColor.cgColor
+            changeColor(Colors.workRedColor)
             timerLabel.text = Strings.workTime25
             startPauseButton.setImage(UIImage(systemName: Icon.start, withConfiguration: buttonConfig), for: .normal)
-            timerLabel.textColor = Colors.workRedColor
-            startPauseButton.tintColor = Colors.workRedColor
-            circleIndicator.strokeColor = Colors.workRedColor.cgColor
             isWorkTime = true
             isStarted = false
             timer.invalidate()
@@ -190,9 +190,9 @@ class ViewController: UIViewController, CAAnimationDelegate {
         let endAngle = (-CGFloat.pi / 2)
         let startAngle = 2 * CGFloat.pi + endAngle
         
-        circleProgressLayer.path = UIBezierPath(arcCenter: CGPoint(x: Offsets.progressBarPathX,
-                                                                   y: Offsets.progressBarPathY),
-                                                radius: Sizes.progressBarRadius,
+        circleProgressLayer.path = UIBezierPath(arcCenter: CGPoint(x: view.frame.width / 2,
+                                                                   y: view.frame.height / 2 - Offsets.pointRotationY85),
+                                                radius: .minimum(view.frame.width / 2.5, view.frame.height / 2.5),
                                                 startAngle: startAngle,
                                                 endAngle: endAngle,
                                                 clockwise: false).cgPath
@@ -201,6 +201,14 @@ class ViewController: UIViewController, CAAnimationDelegate {
         circleProgressLayer.lineWidth = Sizes.lineWidthProgressLayer
         
         return circleProgressLayer
+    }
+    
+    //Метод изменения цвета при смене режима
+    private func changeColor(_ color: UIColor) {
+        backProgressLayer.strokeColor = color.cgColor
+        timerLabel.textColor = color
+        startPauseButton.tintColor = color
+        circleIndicator.strokeColor = color.cgColor
     }
     
     //MARK: - Animation
@@ -305,12 +313,10 @@ extension UIColor {
 extension ViewController {
     enum Sizes {
         static let buttonIconSize: CGFloat = 100
-        static let buttonSize50: CGFloat = 50
         static let labelSize: CGFloat = 80
         static let indicatorSize30: CGFloat = 30
         static let lineWidthIndicator: CGFloat = 2.3
         static let lineWidthProgressLayer: CGFloat = 6
-        static let progressBarRadius: CGFloat = 170
     }
     
     enum Time {
@@ -319,15 +325,15 @@ extension ViewController {
     }
     
     enum Offsets {
-        static let centerIndicatorY: CGFloat = 78
         static let indicatorPathX: CGFloat = -18
-        static let indicatorPathY: CGFloat = -185
-        static let buttonCenterX: CGFloat = -5
-        static let buttonCenterY: CGFloat = 20
-        static let timerLabelTop: CGFloat = 245
-        static let timerLabelLeft: CGFloat = 110
-        static let progressBarPathY: CGFloat = 385
-        static let progressBarPathX: CGFloat = 213
+        static let pointRotationY85: CGFloat = 85
+        static let timerLabelCenterX: CGFloat = -2
+        static let timerLabelCenterY: CGFloat = -115
+        static let timerLabelMultiplierWidth: CGFloat = 0.5
+        static let timerLabelMultiplierHeight: CGFloat = 0.25
+        static let startPauseButtonCenterX: CGFloat = -2
+        static let startPauseButtonTop: CGFloat = 30
+        static let startPauseButtonMultiplierWidth: CGFloat = 0.13
     }
     
     enum Animation {
